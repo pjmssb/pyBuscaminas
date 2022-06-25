@@ -42,8 +42,9 @@ for x in range(settings.GRID_SIZE):
         c.cell_btn_object.grid(column=y, row=x)
 
 Cell.randomize_mines()
-print(Cell.all)
+for cell in Cell.all:
+    if cell.is_mine:
+        cell.text = '*'
 
 #Ejecutar la ventana
 root.mainloop()
-
