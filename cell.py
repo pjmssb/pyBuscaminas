@@ -1,13 +1,16 @@
-from tkinter import Button 
+from tkinter import Button, Label 
 import random
 import settings
 
 class Cell:
 
     all = []
+    cell_count = settings.CELL_COUNT
+    cell_count_label_object = None
 
     def __init__(self, x, y, is_mine=False):
         self.is_mine = is_mine
+        self.is_shown = False
         self.cell_btn_object = None
         self.x = x
         self.y = y
@@ -25,13 +28,22 @@ class Cell:
         btn.bind('<Button-3>', self.right_click_action)
         self.cell_btn_object = btn
     
+    @staticmethod
+    def create_cell_count_label(location):
+        lbl = Label (
+            location,            
+            bg="black", fg="white",
+            width = 12,
+            height = 4,
+            font = ("",30),
+            text=f"Cells left: {settings.CELL_COUNT}"
+        )
+        Cell.cell_count_label_object = lbl
+
     def left_click_action(self, event):
         if self.is_mine:
             self.show_mine()
         else:
-            #if self.surrounded_cells_mines_length == 0:
-            #    for cell_obj in self.surrounded_cells:
-            #        cell_obj.show_cell()
             self.show_cell()
 
 
@@ -65,14 +77,23 @@ class Cell:
         return counter
 
     def show_cell(self):
+        if not self.is_shown:
+            Cell.cell_count -= 1    
+            print(f'Quedan: {Cell.cell_count}')
+        self.is_shown = True
         self.cell_btn_object.configure(text=self.surrounded_cells_mines_length)
         print(f'{self.x},{self.y} -> {self.surrounded_cells_mines_length}')
         if self.surrounded_cells_mines_length == 0:
                 for cell_obj in self.surrounded_cells:
                     cell_obj.cell_btn_object.configure(text=cell_obj.surrounded_cells_mines_length)
-                    if cell_obj.surrounded_cells_mines_length == 0:
+                    if cell_obj.surrounded_cells_mines_length == 0 and not cell_obj.is_shown:
                         print ('Recursión')
                         cell_obj.show_cell()
+                    else:
+                        cell_obj.is_shown = True
+                        Cell.cell_count -= 1
+        if Cell.cell_count_label_object:
+                 Cell.cell_count_label_object.configure(text=f'Cells left: {Cell.cell_count}') 
         
     
     def show_mine(self):
